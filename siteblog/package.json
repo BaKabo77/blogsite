@@ -1,0 +1,31 @@
+{
+  "name": "siteblog",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "server": "node src/server/server.js",
+    "dev:server": "nodemon ./src/server/server.js"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "bootstrap": "^5.3.3",
+    "cors": "^2.8.5",
+    "express": "^4.21.2",
+    "express-mysql-session": "^3.0.3",
+    "express-session": "^1.18.1",
+    "jsonwebtoken": "^9.0.2",
+    "mysql2": "^3.12.0",
+    "nodemon": "^3.1.9",
+    "vue": "^3.5.13",
+    "vue-router": "^4.5.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^5.2.1",
+    "vite": "^6.0.5",
+    "vite-plugin-vue-devtools": "^7.6.8"
+  }
+}
