@@ -95,12 +95,13 @@ const login = async () => {
       headers: {
         'Content-Type': 'application/json'
       },
+      credentials: 'include',
       body: JSON.stringify(loginData.value)
     })
 
     const result = await response.json()
 
-    console.log(result)
+    console.log(result.status)
 
     if (result.user.success) {
       localStorage.setItem('token', result.token)

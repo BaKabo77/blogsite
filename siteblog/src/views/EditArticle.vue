@@ -81,7 +81,9 @@ const categories = ref([])
 // Charger les catégories
 const loadCategories = async () => {
   try {
-    const response = await fetch('http://localhost:3000/categories')
+    const response = await fetch('http://localhost:3000/categories',{
+      credentials:'include'
+    })
     const data = await response.json()
     if (data.success) {
       categories.value = data.categories
@@ -94,7 +96,9 @@ const loadCategories = async () => {
 // Charger l'article existant
 const loadArticle = async () => {
   try {
-    const response = await fetch(`http://localhost:3000/article/${id}`)
+    const response = await fetch(`http://localhost:3000/article/${id}`,{
+      credentials:'include'
+    })
     const data = await response.json()
     if (data.success) {
       const article = data.article
@@ -116,6 +120,7 @@ const updateArticle = async () => {
   try {
     const response = await fetch(`http://localhost:3000/article/${id}`, {
       method: 'PUT',
+      credentials:'include',
       headers: {
         'Content-Type': 'application/json'
       },

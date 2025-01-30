@@ -58,6 +58,7 @@ const register = async () => {
   try {
     const response = await fetch('http://localhost:3000/register', {
       method: 'POST',
+      credentials:'include',
       headers: {
         'Content-Type': 'application/json'
       },

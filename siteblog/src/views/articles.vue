@@ -15,8 +15,16 @@
       </div>
     </div>
 
-    <p v-if="!art">
-      vous n'avez pas encore d'articles
+    <div v-if="isLoading">
+      <CircleLoader class="d-flex align-content-center justify-content-center" color="grey"></CircleLoader>
+    </div>
+
+    <div v-else-if="error" class="alert alert-danger">
+      {{ error }}
+    </div>
+
+    <p v-else-if="!art || art.length === 0">
+      Vous n'avez pas encore d'articles
     </p>
 
     <!-- Liste des articles dans un container -->
@@ -50,36 +58,49 @@
     </div>
 
   </div>
-</template>
+
+
+</template >
 
 <script setup>
 
 import { onMounted,watch,ref } from 'vue';
 import { RouterLink } from 'vue-router';
+import CircleLoader from 'vue-spinner/src/MoonLoader.vue'
 
-let art = ref()
+let isLoading = ref(true)
+let error = ref(null)
+let art = ref(null)
 
+const getArticles = async () => {
+    isLoading.value = true
+    try {
+        const user = JSON.parse(localStorage.getItem('user'))
+        const id = user.id
+        
+        const req = await fetch('http://localhost:3000/articles/'+id, {
+            credentials:'include'
+        })
+        const data = await req.json()
+        
+        if (!data.success) {
+            throw new Error(data.error)
+        }
+        
+        art.value = data.articles
+        art.value.forEach(element => {
+            element.slug = element.slug.split('-')
+        })
+    } catch(error) {
+        console.error('Erreur:', error)
+        art.value = null
+    } finally {
+        isLoading.value = false
+    }
+}
 
-onMounted(async()=>{
-
-    const user = JSON.parse(localStorage.getItem('user'))
-    
-    const id = user.id
-
-    const req = await fetch('http://localhost:3000/articles/'+id)
-    const data = await req.json()
-    
-    art.value = data.articles
-
-    art.value.forEach(element => {
-      element.slug = element.slug.split('-')
-    });
-
-
-
-
+onMounted(() => {
+    getArticles()
 })
-
-
 
 </script>

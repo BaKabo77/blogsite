@@ -1,18 +1,28 @@
 <template>
   <div class="container py-5">
-    <div class="row">
+    <!-- Gestion du chargement global -->
+    <div v-if="isLoading" class="d-flex justify-content-center">
+      <CircleLoader color="grey"></CircleLoader>
+    </div>
+
+    <div v-else-if="error" class="alert alert-danger" role="alert">
+      {{ error }}
+    </div>
+
+    <div v-else class="row">
       <div class="col-lg-4">
         <div class="card mb-4">
           <div class="card-body text-center">
-
             <h5 class="my-3">{{ user.username }}</h5>
             <div class="d-flex justify-content-center mb-2">
-              <RouterLink to="/edit-profil" class="btn btn-primary">Modifier le profil</RouterLink>            </div>
+              <RouterLink to="/edit-profil" class="btn btn-primary">Modifier le profil</RouterLink>
+            </div>
           </div>
         </div>
       </div>
       
       <div class="col-lg-8">
+        <!-- Informations utilisateur -->
         <div class="card mb-4">
           <div class="card-body">
             <div class="row">
@@ -44,12 +54,23 @@
           </div>
         </div>
 
+        <!-- Section articles -->
         <div class="card mb-4">
           <div class="card-body">
             <h5 class="card-title">Mes derniers articles</h5>
-            <div class="list-group">
-
+            <div v-if="isLoadingArticles" class="d-flex justify-content-center my-4">
+              <CircleLoader color="grey"></CircleLoader>
+            </div>
             
+            <div v-else-if="articlesError" class="alert alert-danger">
+              {{ articlesError }}
+            </div>
+
+            <div v-else-if="!lastArticles || lastArticles.length === 0" class="text-center my-4">
+              Vous n'avez pas encore publié d'articles
+            </div>
+
+            <div v-else class="list-group">
               <a v-for="article in lastArticles" href="#" class="list-group-item list-group-item-action text-dark">
                 <RouterLink :to="'article/'+article.id" class="text-decoration-none text-dark">
                   <div class="d-flex w-100 justify-content-between">
@@ -59,8 +80,6 @@
                   <p class="mb-1">{{ article.content.slice(0,100) + "..." }}</p>
                 </RouterLink>
               </a>
-            
-
             </div>
           </div>
         </div>
@@ -70,43 +89,68 @@
 </template>
 
 <script setup>
-
-import {onMounted,ref} from 'vue'
+import { onMounted, ref } from 'vue'
+import CircleLoader from 'vue-spinner/src/MoonLoader.vue'
 
 let user = ref({})
+const lastArticles = ref([])
+const isLoading = ref(true)
+const isLoadingArticles = ref(true)
+const error = ref(null)
+const articlesError = ref(null)
 
-const lastArticles = ref()
-
-const recupUser = ()=>{
-
-  try{
-
+const recupUser = () => {
+  try {
     const rawData = localStorage.getItem('user')
+    if (!rawData) {
+      throw new Error("Données utilisateur non trouvées")
+    }
     const data = JSON.parse(rawData)
     user.value = data
     user.value.created_at = user.value.created_at.slice(0,10)
-
-}catch(error){
-
-    console.log(error)
-
+  } catch(error) {
+    console.error(error)
+    error.value = "Erreur lors de la récupération des données utilisateur"
+  }
 }
 
-}
-
-const recupArticleUser = async()=>{
-
-  const rawData = await fetch('http://localhost:3000/articles/'+user.value.id)
-  const data = await rawData.json()
-  lastArticles.value = data.articles
-}
-
-onMounted(()=>{
-
-  recupUser()
-  recupArticleUser()
+const recupArticleUser = async () => {
+  isLoadingArticles.value = true
+  articlesError.value = null
   
+  try {
+    const rawData = await fetch('http://localhost:3000/articles/' + user.value.id, {
+      credentials: 'include'
+    })
+    
+    if (!rawData.ok) {
+      throw new Error("Erreur lors de la récupération des articles")
+    }
+    
+    const data = await rawData.json()
+    
+    if (!data.success) {
+      throw new Error("Échec de la récupération des articles")
+    }
+    
+    lastArticles.value = data.articles
+  } catch(error) {
+    console.error(error)
+    articlesError.value = error.message
+  } finally {
+    isLoadingArticles.value = false
+  }
+}
+
+onMounted(async () => {
+  isLoading.value = true
+  try {
+    recupUser()
+    await recupArticleUser()
+  } catch(error) {
+    error.value = "Une erreur est survenue lors du chargement des données"
+  } finally {
+    isLoading.value = false
+  }
 })
-
-
 </script> 

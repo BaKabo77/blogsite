@@ -64,6 +64,7 @@ const updateProfile = async () => {
   try {
     const user = JSON.parse(localStorage.getItem('user'))
     const response = await fetch(`http://localhost:3000/user/${user.id}`, {
+      credentials:'include',
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json'
