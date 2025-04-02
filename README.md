@@ -1,7 +1,6 @@
 # 📝 SiteBlog - Plateforme de Blog Vue.js
 
 ## ⚠️ État du Projet
-🚧 **Projet en cours de développement** 🚧
 
 Ce projet est actuellement en développement actif. De nouvelles fonctionnalités sont régulièrement ajoutées et des modifications importantes peuvent survenir. La documentation sera mise à jour en conséquence.
 
